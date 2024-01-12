@@ -15,6 +15,53 @@ const sqlite_manager = require('./sqlite_manager');
 
 const { CoinStatus } = require('./coin_enum');
 
+// Note: incomplete probably be removed later
+/*
+const execute = async (electrumClient, db, wallet_name, token_id, amount) => {
+
+    let token = getRealToken();
+
+    let deposit_options = (await axios.get("http://45.76.136.11:9000/token/token_init")).data;
+    const { fee, btc_payment_address, lightning_invoice, processor_id, token_id } = deposit_options;
+
+    console.log('Fee', fee);
+    console.log('processor_id', processor_id);
+    console.log('token_id', token_id);
+
+    let swiss_pay_process = (await axios.get(`https://api.swiss-bitcoin-pay.ch/checkout/${processor_id}`)).data;
+    console.log('swiss_pay_process', swiss_pay_process);
+
+    let check_status = (await axios.get(`http://45.76.136.11:9000/token/token_verify/${token_id}`)).data;
+    const { confirmed } = check_status;
+    console.log('confirmed:', confirmed);
+}*/
+
+const getRealToken = async () => {
+
+    const statechain_entity_url = config.get('tokenServer');
+    const path = "token/token_init";
+    const url = statechain_entity_url + '/' + path;
+    const torProxy = config.get('torProxy');
+
+    let socksAgent = undefined;
+
+    if (torProxy) {
+        socksAgent = { httpAgent: new SocksProxyAgent(torProxy) };
+    }
+
+    const response = await axios.get(url, socksAgent);
+
+    if (response.status != 200) {
+        throw new Error(`Token error: ${response.data}`);
+    }
+
+    let token = response.data;
+
+    console.log('token', token);
+
+    return token;
+}
+
 const getDepositBitcoinAddress = async (db, wallet_name, token_id, amount) => {
 
     let wallet = await sqlite_manager.getWallet(db, wallet_name);
@@ -31,7 +78,7 @@ const getDepositBitcoinAddress = async (db, wallet_name, token_id, amount) => {
 
     await sqlite_manager.updateWallet(db, wallet);
 
-    return { "deposit_address":  coin.aggregated_address, "statechain_id": coin.statechain_id };
+    return { "deposit_address": coin.aggregated_address, "statechain_id": coin.statechain_id };
 }
 
 const createTx1 = async (electrumClient, coin, wallet_network, tx0_hash, tx0_vout) => {
@@ -70,7 +117,7 @@ const createTx1 = async (electrumClient, coin, wallet_network, tx0_hash, tx0_vou
 }
 
 /*
-const createStatecoin = async (electrumClient, db, wallet_name, aggregated_address) => {
+const createStatecoin = async (electrumClient, db, wallet_name, aggregated_address, amount) => {
 
     let wallet = await sqlite_manager.getWallet(db, wallet_name);
 
@@ -121,14 +168,14 @@ const createStatecoin = async (electrumClient, db, wallet_name, aggregated_addre
     coin.locktime = mercury_wasm.getBlockheight(backup_tx);
 
     await sqlite_manager.insertTransaction(db, coin.statechain_id, [backup_tx]);
-   
+
     // let res = await electrumClient.request('blockchain.transaction.broadcast', [signed_tx]);
 
     let utxo = `${coin.utxo_txid}:${coin.input_vout}`;
 
     let activity = {
         utxo: utxo,
-        amount: coin.amount,
+        amount: amount,
         action: "Deposit",
         date: new Date().toISOString()
     };
@@ -210,6 +257,7 @@ const init = async (db, wallet, token_id) => {
     await sqlite_manager.updateWallet(db, wallet);
 }
 
+// This gets a test token, not a real token
 const getToken = async () => {
 
     const statechain_entity_url = config.get('statechainEntity');
@@ -235,4 +283,4 @@ const getToken = async () => {
     return token.token_id;
 }
 
-module.exports = { /*execute, createStatecoin,*/ getDepositBitcoinAddress, createTx1, getToken };
+module.exports = { /*execute, createStatecoin,*/ getDepositBitcoinAddress, createTx1, getToken, getRealToken };

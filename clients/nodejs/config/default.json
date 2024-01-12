@@ -1,10 +1,11 @@
 {
-    "_statechainEntity": "http://127.0.0.1:8000",
-    "statechainEntity": "http://j23wevaeducxuy3zahd6bpn4x76cymwz2j3bdixv7ow4awjrg5p6jaid.onion",
+    "ingressServer": "http://45.76.136.11:8500",
+    "statechainEntity": "http://45.76.136.11:8000",
+    "tokenServer": "http://45.76.136.11:9000",
     "electrumServer": "tcp://signet-electrumx.wakiyamap.dev:50001",
     "network": "signet",
     "feeRateTolerance": 5,
     "databaseFile": "wallet.db",
     "confirmationTarget": 2,
-    "torProxy": "socks5h://localhost:9050"
+    "torProxy": null
 }
