@@ -4,13 +4,18 @@ import transaction from './transaction';
 import CoinStatus from './coinEnum.js';
 
 const newToken = async () => {
-    let token_id = await window.api.getToken(); // fake token
-    return { token_id };
+    let token_id = await window.api.getToken();
+    return { token_id, invoice: "lnwr445345", processor_id: "4353453", confirmed: true, spent: false };
 }
 
 const newAddress = async (wallet, token_id, amount) => {
 
-    //let token_id = await window.api.getToken();
+    console.log('[newAddress]', wallet);
+    console.log('[newAddress]', token_id);
+    console.log('[newAddress]', amount);
+
+    token_id = await window.api.getToken();
+    console.log('new_token_id', token_id);
 
     const coin = mercury_wasm.getNewCoin(wallet);
 

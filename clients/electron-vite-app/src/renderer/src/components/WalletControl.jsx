@@ -17,6 +17,8 @@ export default function WalletControl({ wallet }) {
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
+    console.log('Values in the form are', formData.token_id);
+    console.log('Values in the statecoin is: ', formData.statecoinAmount);
 
     // validate the values before submitting
     if (formData.token_id == '') {
@@ -93,7 +95,7 @@ export default function WalletControl({ wallet }) {
     <CoinItem key={index} coin={coin} wallet={wallet} />
   );
 
-  let tokenList = tokensClone.map((token, index) => <div>Token ID: {token.token_id}</div>)
+  let tokenList = tokensClone.map((token, index) => <div>Token: {JSON.stringify(token)}</div>)
 
   let sortedActivities = wallet.activities.slice().sort((a, b) => {
     return new Date(b.date) - new Date(a.date);

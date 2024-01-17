@@ -1,0 +1,1 @@
+Mercury Wallet base project that runs purely on web
