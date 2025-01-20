@@ -62,7 +62,6 @@ services:
     ports:
       - "8001:8001"
     depends_on:
-      - esplora
       - db_server
 
   mercury-server:
