@@ -3,7 +3,7 @@ import { describe, test, expect } from "vitest";
 import CoinStatus from 'mercuryweblib/coin_enum.js';
 import clientConfig from '../ClientConfig.js';
 import mercuryweblib from 'mercuryweblib';
-import { generateBlocks, depositCoin, sleep, generateInvoice, payInvoice, payHoldInvoice, settleInvoice, decodeInvoice } from '../test-utils.js';
+import { generateBlocks, depositCoin, sleep, generateInvoice, payInvoice, payHoldInvoice, settleInvoice, decodeInvoice, handleTokenResponse } from '../test-utils.js';
 
 async function sha256(preimage) {
     let buffer;
@@ -44,11 +44,13 @@ describe('TB04 - Simple Lightning Latch', () => {
         let wallet1 = await mercuryweblib.createWallet(clientConfig, "wallet1_tb04");
         let wallet2 = await mercuryweblib.createWallet(clientConfig, "wallet2_tb04");
 
-        await mercuryweblib.newToken(clientConfig, wallet1.name);
+        let tokenResponse = await mercuryweblib.newToken(clientConfig, wallet1.name);
+
+        let token_id = await handleTokenResponse(tokenResponse);
 
         const amount = 1000;
         
-        let result = await mercuryweblib.getDepositBitcoinAddress(clientConfig, wallet1.name, amount);
+        let result = await mercuryweblib.getDepositBitcoinAddress(clientConfig, wallet1.name, token_id, amount);
 
         const statechainId = result.statechain_id;
     
@@ -120,13 +122,16 @@ describe('TB04 - The sender tries to get the pre-image before the batch is unloc
         let wallet1 = await mercuryweblib.createWallet(clientConfig, "wallet1_tb04");
         let wallet2 = await mercuryweblib.createWallet(clientConfig, "wallet2_tb04");
 
-        await mercuryweblib.newToken(clientConfig, wallet1.name);
-        await mercuryweblib.newToken(clientConfig, wallet2.name);
+        let tokenResponse1 = await mercuryweblib.newToken(clientConfig, wallet1.name);
+        let tokenResponse2 = await mercuryweblib.newToken(clientConfig, wallet2.name);
+
+        let token_id1 = await handleTokenResponse(tokenResponse1);
+        let token_id2 = await handleTokenResponse(tokenResponse2);
 
         const amount = 1000;
         
-        let result1 = await mercuryweblib.getDepositBitcoinAddress(clientConfig, wallet1.name, amount);
-        let result2 = await mercuryweblib.getDepositBitcoinAddress(clientConfig, wallet2.name, amount);
+        let result1 = await mercuryweblib.getDepositBitcoinAddress(clientConfig, wallet1.name, token_id1, amount);
+        let result2 = await mercuryweblib.getDepositBitcoinAddress(clientConfig, wallet2.name, token_id2, amount);
 
         const statechainId1 = result1.statechain_id;
         const statechainId2 = result2.statechain_id;
@@ -221,13 +226,16 @@ describe('TB04 - Statecoin sender can recover (resend their coin) after batch ti
         let wallet1 = await mercuryweblib.createWallet(clientConfig, "wallet1_tb04");
         let wallet2 = await mercuryweblib.createWallet(clientConfig, "wallet2_tb04");
 
-        await mercuryweblib.newToken(clientConfig, wallet1.name);
-        await mercuryweblib.newToken(clientConfig, wallet2.name);
+        let tokenResponse1 = await mercuryweblib.newToken(clientConfig, wallet1.name);
+        let tokenResponse2 = await mercuryweblib.newToken(clientConfig, wallet2.name);
+
+        let token_id1 = await handleTokenResponse(tokenResponse1);
+        let token_id2 = await handleTokenResponse(tokenResponse2);
 
         const amount = 1000;
         
-        let result1 = await mercuryweblib.getDepositBitcoinAddress(clientConfig, wallet1.name, amount);
-        let result2 = await mercuryweblib.getDepositBitcoinAddress(clientConfig, wallet2.name, amount);
+        let result1 = await mercuryweblib.getDepositBitcoinAddress(clientConfig, wallet1.name, token_id1, amount);
+        let result2 = await mercuryweblib.getDepositBitcoinAddress(clientConfig, wallet2.name, token_id2, amount);
 
         const statechainId1 = result1.statechain_id;
         const statechainId2 = result2.statechain_id;
@@ -332,11 +340,13 @@ describe('TB04 - Statecoin trade with invoice creation, payment and settlement',
         let wallet1 = await mercuryweblib.createWallet(clientConfig, "wallet1_tb04");
         let wallet2 = await mercuryweblib.createWallet(clientConfig, "wallet2_tb04");
 
-        await mercuryweblib.newToken(clientConfig, wallet1.name);
+        let tokenResponse = await mercuryweblib.newToken(clientConfig, wallet1.name);
+
+        let token_id = await handleTokenResponse(tokenResponse);
 
         const amount = 1000;
         
-        let result = await mercuryweblib.getDepositBitcoinAddress(clientConfig, wallet1.name, amount);
+        let result = await mercuryweblib.getDepositBitcoinAddress(clientConfig, wallet1.name, token_id, amount);
 
         const statechainId = result.statechain_id;
     
@@ -410,11 +420,13 @@ describe('TB04 - Receiver tries to transfer invoice amount to another invoice be
         let wallet1 = await mercuryweblib.createWallet(clientConfig, "wallet1_tb04");
         let wallet2 = await mercuryweblib.createWallet(clientConfig, "wallet2_tb04");
 
-        await mercuryweblib.newToken(clientConfig, wallet1.name);
+        let tokenResponse = await mercuryweblib.newToken(clientConfig, wallet1.name);
+
+        let token_id = await handleTokenResponse(tokenResponse);
 
         const amount = 1000;
         
-        let result = await mercuryweblib.getDepositBitcoinAddress(clientConfig, wallet1.name, amount);
+        let result = await mercuryweblib.getDepositBitcoinAddress(clientConfig, wallet1.name, token_id, amount);
 
         const statechainId = result.statechain_id;
     
@@ -501,11 +513,13 @@ describe('Statecoin sender sends coin without batch_id (receiver should still be
         let wallet1 = await mercuryweblib.createWallet(clientConfig, "wallet1_tb04");
         let wallet2 = await mercuryweblib.createWallet(clientConfig, "wallet2_tb04");
 
-        await mercuryweblib.newToken(clientConfig, wallet1.name);
+        let tokenResponse = await mercuryweblib.newToken(clientConfig, wallet1.name);
+
+        let token_id = await handleTokenResponse(tokenResponse);
 
         const amount = 1000;
         
-        let result = await mercuryweblib.getDepositBitcoinAddress(clientConfig, wallet1.name, amount);
+        let result = await mercuryweblib.getDepositBitcoinAddress(clientConfig, wallet1.name, token_id, amount);
 
         const statechainId = result.statechain_id;
     
@@ -581,11 +595,13 @@ describe('TB04 - Sender sends coin without batch_id, and then resends to a diffe
         let wallet2 = await mercuryweblib.createWallet(clientConfig, "wallet2_tb04");
         let wallet3 = await mercuryweblib.createWallet(clientConfig, "wallet3_tb04");
 
-        await mercuryweblib.newToken(clientConfig, wallet1.name);
+        let tokenResponse = await mercuryweblib.newToken(clientConfig, wallet1.name);
+
+        let token_id = await handleTokenResponse(tokenResponse);
 
         const amount = 1000;
         
-        let result = await mercuryweblib.getDepositBitcoinAddress(clientConfig, wallet1.name, amount);
+        let result = await mercuryweblib.getDepositBitcoinAddress(clientConfig, wallet1.name, token_id, amount);
 
         const statechainId = result.statechain_id;
     
@@ -659,11 +675,13 @@ describe('Coin receiver creates a non hold invoice, and sends to sender (i.e. an
 
         let wallet1 = await mercuryweblib.createWallet(clientConfig, "wallet1_tb04");
 
-        await mercuryweblib.newToken(clientConfig, wallet1.name);
+        let tokenResponse = await mercuryweblib.newToken(clientConfig, wallet1.name);
+
+        let token_id = await handleTokenResponse(tokenResponse);
 
         const amount = 1000;
         
-        let result = await mercuryweblib.getDepositBitcoinAddress(clientConfig, wallet1.name, amount);
+        let result = await mercuryweblib.getDepositBitcoinAddress(clientConfig, wallet1.name, token_id, amount);
 
         const statechainId = result.statechain_id;
     

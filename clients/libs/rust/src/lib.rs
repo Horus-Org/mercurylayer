@@ -22,6 +22,7 @@ pub use mercurylib::transfer::sender::{TransferSenderRequestPayload, TransferSen
 pub use mercurylib::transaction::{SignFirstRequestPayload, SignFirstResponsePayload, create_and_commit_nonces};
 pub use mercurylib::utils::get_blockheight;
 pub use mercurylib::{validate_address, decode_transfer_address};
+pub use mercurylib::deposit::TokenResponse;
 
 pub fn add(left: usize, right: usize) -> usize {
     left + right

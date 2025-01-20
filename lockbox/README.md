@@ -12,7 +12,7 @@ $ mkdir -p build && cd build
 $ cmake --preset=vcpkg ..
 $ cmake --build .
 ```
-4. Set the desired key manager in `Settings.toml`. Currently, there are 3 available: `google_kms`, `hashicorp`, `filesystem`.
+4. Set the desired key manager in `Settings.toml`. Currently, there are 4 available: `google_kms`, `hashicorp_container`, `hashicorp_api` and `filesystem`.
 
 5. Copy the `Settings.toml` file: `$ cp ../Settings.toml .` 
 

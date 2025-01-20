@@ -8,7 +8,9 @@ async fn tm01(client_config: &ClientConfig, wallet1: &Wallet, wallet2: &Wallet, 
 
     let amount = 1000;
 
-    let token_id = mercuryrustlib::deposit::get_token(client_config).await?;
+    let token_response = mercuryrustlib::deposit::get_token(client_config).await?;
+
+    let token_id = crate::utils::handle_token_response(client_config, &token_response).await?;
 
     let address = mercuryrustlib::deposit::get_deposit_bitcoin_address(&client_config, &wallet1.name, &token_id, amount).await?;
 

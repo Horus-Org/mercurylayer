@@ -54,7 +54,9 @@ async fn basic_workflow(client_config: &ClientConfig, wallet1: &Wallet, wallet2:
 
     let amount = 1000;
 
-    let token_id = mercuryrustlib::deposit::get_token(client_config).await?;
+    let token_response = mercuryrustlib::deposit::get_token(client_config).await?;
+
+    let token_id = crate::utils::handle_token_response(client_config, &token_response).await?;
 
     let deposit_address = mercuryrustlib::deposit::get_deposit_bitcoin_address(&client_config, &wallet1.name, &token_id, amount).await?;
 
@@ -211,7 +213,9 @@ async fn resend_workflow(client_config: &ClientConfig, wallet1: &Wallet, wallet2
 
     let amount = 1000;
 
-    let token_id = mercuryrustlib::deposit::get_token(client_config).await?;
+    let token_response = mercuryrustlib::deposit::get_token(client_config).await?;
+
+    let token_id = crate::utils::handle_token_response(client_config, &token_response).await?;
 
     let deposit_address = mercuryrustlib::deposit::get_deposit_bitcoin_address(&client_config, &wallet1.name, &token_id, amount).await?;
 
@@ -330,7 +334,9 @@ async fn multiple_sends_workflow(client_config: &ClientConfig, wallet1: &Wallet,
 
     let amount = 1000;
 
-    let token_id = mercuryrustlib::deposit::get_token(client_config).await?;
+    let token_response = mercuryrustlib::deposit::get_token(client_config).await?;
+
+    let token_id = crate::utils::handle_token_response(client_config, &token_response).await?;
 
     let deposit_address = mercuryrustlib::deposit::get_deposit_bitcoin_address(&client_config, &wallet1.name, &token_id, amount).await?;
 
@@ -465,7 +471,9 @@ async fn send_to_itself_workflow(client_config: &ClientConfig, wallet1: &Wallet,
 
     let amount = 1000;
 
-    let token_id = mercuryrustlib::deposit::get_token(client_config).await?;
+    let token_response = mercuryrustlib::deposit::get_token(client_config).await?;
+
+    let token_id = crate::utils::handle_token_response(client_config, &token_response).await?;
 
     let deposit_address = mercuryrustlib::deposit::get_deposit_bitcoin_address(&client_config, &wallet1.name, &token_id, amount).await?;
 
@@ -620,7 +628,9 @@ async fn send_unconfirmed_duplicated_workflow(client_config: &ClientConfig, wall
 
     let amount = 1000;
 
-    let token_id = mercuryrustlib::deposit::get_token(client_config).await?;
+    let token_response = mercuryrustlib::deposit::get_token(client_config).await?;
+
+    let token_id = crate::utils::handle_token_response(client_config, &token_response).await?;
 
     let deposit_address = mercuryrustlib::deposit::get_deposit_bitcoin_address(&client_config, &wallet1.name, &token_id, amount).await?;
 

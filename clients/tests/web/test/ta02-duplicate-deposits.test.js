@@ -3,7 +3,7 @@ import { describe, test, expect } from "vitest";
 import CoinStatus from 'mercuryweblib/coin_enum.js';
 import clientConfig from '../ClientConfig.js';
 import mercuryweblib from 'mercuryweblib';
-import { generateBlocks, depositCoin } from '../test-utils.js';
+import { generateBlocks, depositCoin, handleTokenResponse } from '../test-utils.js';
 
 describe('TA02 - Duplicated Deposits', () => {
     test("withdraw flow", async () => {
@@ -14,11 +14,13 @@ describe('TA02 - Duplicated Deposits', () => {
         let wallet1 = await mercuryweblib.createWallet(clientConfig, "wallet1_tb02_1");
         let wallet2 = await mercuryweblib.createWallet(clientConfig, "wallet2_tb02_1");
 
-        await mercuryweblib.newToken(clientConfig, wallet1.name);
+        let tokenResponse = await mercuryweblib.newToken(clientConfig, wallet1.name);
+
+        let token_id = await handleTokenResponse(tokenResponse);
 
         const amount = 1000;
         
-        let result = await mercuryweblib.getDepositBitcoinAddress(clientConfig, wallet1.name, amount);
+        let result = await mercuryweblib.getDepositBitcoinAddress(clientConfig, wallet1.name, token_id, amount);
 
         const statechainId = result.statechain_id;
     
@@ -111,11 +113,13 @@ describe('TA02 - Duplicated Deposits', () => {
         let wallet1 = await mercuryweblib.createWallet(clientConfig, "wallet1_tb02_2");
         let wallet2 = await mercuryweblib.createWallet(clientConfig, "wallet2_tb02_2");
 
-        await mercuryweblib.newToken(clientConfig, wallet1.name);
+        let tokenResponse = await mercuryweblib.newToken(clientConfig, wallet1.name);
+
+        let token_id = await handleTokenResponse(tokenResponse);
 
         const amount = 1000;
         
-        let result = await mercuryweblib.getDepositBitcoinAddress(clientConfig, wallet1.name, amount);
+        let result = await mercuryweblib.getDepositBitcoinAddress(clientConfig, wallet1.name, token_id, amount);
 
         const statechainId = result.statechain_id;
     

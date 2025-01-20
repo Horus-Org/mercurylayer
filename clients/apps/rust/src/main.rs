@@ -101,9 +101,9 @@ async fn main() -> Result<()> {
             println!("Wallet created: {:?}", wallet);
         },
         Commands::NewToken { } => {
-            let token_id = mercuryrustlib::deposit::get_token(&client_config).await?;
+            let token_response = mercuryrustlib::deposit::get_token(&client_config).await?;
 
-            let obj = json!({"token": token_id});
+            let obj = json!(token_response);
 
             println!("{}", serde_json::to_string_pretty(&obj).unwrap());
         },

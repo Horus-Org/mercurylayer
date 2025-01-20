@@ -11,6 +11,15 @@ pub struct TokenID {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct TokenResponse {
+    pub token_id: String,
+    pub payment_method: String,
+    pub deposit_address: Option<String>,
+    pub fee: u64,
+    pub confirmation_target: u64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "bindings", derive(uniffi::Record))]
 pub struct DepositMsg1 {
     pub auth_key: String,

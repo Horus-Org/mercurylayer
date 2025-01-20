@@ -58,7 +58,8 @@ pub struct ServerConfig {
     pub db_name: String,
     /// Nostr info
     pub nostr_info: Option<NostrInfo>,
-    
+    /// URL of the token server
+    pub token_server_url: Option<String>,
 }
 
 impl Default for ServerConfig {
@@ -84,6 +85,7 @@ impl Default for ServerConfig {
             db_port: 5432,
             db_name: String::from("mercury"),
             nostr_info: None,
+            token_server_url: None,
         }
     }
 }
@@ -163,6 +165,27 @@ impl ServerConfig {
             }
         };
 
+        let get_optional_env_or_config = |key: &str, env_var: &str| -> Option<String> {
+
+            let env_var = env::var(env_var);
+
+            if env_var.is_ok() {
+                return Some(env_var.unwrap());
+            }
+
+            if settings.as_ref().is_none() {
+                return None
+            }
+
+            let res = settings.as_ref().unwrap().get::<String>(key);
+
+            if res.is_ok() {
+                return Some(res.unwrap())
+            }
+
+            return None;
+        };
+
         ServerConfig {
             network: get_env_or_config("network", "BITCOIN_NETWORK"),
             lockheight_init: get_env_or_config("lockheight_init", "LOCKHEIGHT_INIT").parse::<u32>().unwrap(),
@@ -175,6 +198,7 @@ impl ServerConfig {
             db_port: get_env_or_config("db_port", "DB_PORT").parse::<u16>().unwrap(),
             db_name: get_env_or_config("db_name", "DB_NAME"),
             nostr_info: get_env_or_config_nostr_info("nostr_info", "NOSTR_INFO"),
+            token_server_url: get_optional_env_or_config("token_server_url", "TOKEN_SERVER_URL"),
         }
     }
 

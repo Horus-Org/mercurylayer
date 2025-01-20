@@ -1,4 +1,5 @@
 import axios from 'axios';
+import clientConfig from './ClientConfig.js';
 
 const generateBlocks = async (blocks) => {
     const body = {
@@ -122,4 +123,66 @@ const decodeInvoice = async (paymentRequest) => {
     }
 }
 
-export { generateBlocks, depositCoin, sleep, generateInvoice, payInvoice, payHoldInvoice, settleInvoice, decodeInvoice };
+const checkDepositsConfirmation = async (address) => {
+    let allDepositsConfirmed = false;
+    const startTime = Date.now();
+    const timeoutDuration = 60000; // 1 minute in milliseconds
+    
+    while (Date.now() - startTime < timeoutDuration) {
+
+        const response = await axios.get(`${clientConfig.esploraServer}/api/address/${address}/utxo`);
+        const transactions = response.data;
+
+        // Check if all transactions are confirmed
+        const allConfirmed = transactions.every(tx => tx.status.confirmed === true);
+        
+        if (allConfirmed) {
+            allDepositsConfirmed = true;
+            console.log('All deposits confirmed!');
+            break;
+        }
+        
+        // Wait for 2 seconds before next check
+        await new Promise(resolve => setTimeout(resolve, 2000));
+    }
+    
+    return allDepositsConfirmed;
+}
+
+const handleTokenResponse = async (tokenResponse) => {
+
+    let tokenId = tokenResponse.token_id;
+
+    if (tokenResponse.payment_method == "onchain") {
+
+        console.log(">>>>>>>>>>>> Onchain payment method");
+
+        let remainingBlocks = tokenResponse.confirmation_target;
+        let depositAddress = tokenResponse.deposit_address;
+
+        let amount = tokenResponse.fee;
+
+        await depositCoin(depositAddress, amount);
+
+        await generateBlocks(remainingBlocks);
+
+        await checkDepositsConfirmation(depositAddress);
+
+        console.log(">>>>>>>>>>>> Deposit confirmed");
+    }
+
+    return tokenId;
+}
+
+export { 
+    generateBlocks, 
+    depositCoin, 
+    sleep, 
+    generateInvoice, 
+    payInvoice, 
+    payHoldInvoice, 
+    settleInvoice, 
+    decodeInvoice, 
+    handleTokenResponse, 
+    checkDepositsConfirmation 
+};

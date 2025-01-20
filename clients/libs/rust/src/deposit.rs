@@ -121,7 +121,7 @@ pub async fn init(client_config: &ClientConfig, wallet: &Wallet, token_id: uuid:
     Ok(wallet)
 }
 
-pub async fn get_token(client_config: &ClientConfig) -> Result<String> {
+pub async fn get_token(client_config: &ClientConfig) -> Result<mercurylib::deposit::TokenResponse> {
 
     let endpoint = client_config.statechain_entity.clone();
     let path = "deposit/get_token";
@@ -138,7 +138,7 @@ pub async fn get_token(client_config: &ClientConfig) -> Result<String> {
 
     let value = response.text().await?;
 
-    let token: mercurylib::deposit::TokenID = serde_json::from_str(value.as_str())?;
+    let token: mercurylib::deposit::TokenResponse = serde_json::from_str(value.as_str())?;
 
-    return Ok(token.token_id);
+    return Ok(token);
 }

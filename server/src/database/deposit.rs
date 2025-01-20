@@ -30,6 +30,38 @@ pub async fn get_token_status(pool: &sqlx::PgPool, token_id: &str) -> Option<boo
 
 }
 
+pub struct TokenInfo {
+    pub confirmed: bool,
+    pub spent: bool,
+}
+
+pub async fn get_token_info(pool: &sqlx::PgPool, token_id: &str) -> Option<TokenInfo> {
+
+    let row = sqlx::query(
+        "SELECT confirmed, spent \
+        FROM public.tokens \
+        WHERE token_id = $1")
+        .bind(&token_id)
+        .fetch_optional(pool)
+        .await;
+
+    let row = row.unwrap();
+
+    if row.is_none() {
+        return None;
+    }
+
+    let row = row.unwrap();
+
+    let confirmed: bool = row.get(0);
+    let spent: bool = row.get(1);
+
+    Some(TokenInfo {
+        confirmed,
+        spent,
+    })
+}
+
 pub async fn set_token_spent(pool: &sqlx::PgPool, token_id: &str)  {
 
     let mut transaction = pool.begin().await.unwrap();

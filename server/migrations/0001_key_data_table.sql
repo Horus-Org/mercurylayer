@@ -53,6 +53,8 @@ CREATE TABLE public.tokens (
 	token_id varchar NULL UNIQUE,
 	invoice varchar NULL,
 	onchain_address varchar NULL,
+	descriptor_checksum varchar NULL,
+	onchain_address_index integer NULL,
 	processor_id varchar NULL,
 	confirmed boolean DEFAULT false,
 	spent boolean DEFAULT false,

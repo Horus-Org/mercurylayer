@@ -30,10 +30,8 @@ async function main() {
 
     program.command('new-token')
     .description('Get new token.')
-    .argument('<wallet_name>', 'name of the wallet')
-    .action(async (wallet_name) => {
-
-      const token = await mercurynodejslib.newToken(clientConfig, wallet_name);
+    .action(async () => {
+      const token = await mercurynodejslib.newToken(clientConfig);
       console.log(JSON.stringify(token, null, 2));
 
     });

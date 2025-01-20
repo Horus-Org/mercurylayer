@@ -1,17 +1,6 @@
-# This docker-compose file is an example of how to start the lockbox service and its dependencies.
-# First, you start the vault service, if you use it. The command is:
-# docker compose -f docker-compose-lockbox.yml --profile hashicorp-container up --build
-# Then, you start the Lockbox and Mercury server services. The command is:
-# docker compose -f docker-compose-lockbox.yml --profile mercury up --build
-# The Mercury service will start the Lockbox service and the Mercury server. The Lockbox service will connect to the vault service to get the seed value.
-
-# If you are not going to use the vault service, you do not need to run the first command.
-# Change the environment variables to match your configuration.
 services:
 
   vault:
-    profiles:
-        - hashicorp-container
     image: hashicorp/vault
     environment:
       - VAULT_DEV_ROOT_TOKEN_ID=2bbz80mr1zm0tfrjwxyq7f48ofgky848
@@ -19,8 +8,6 @@ services:
       - "8200:8200"
 
   vault-init:
-    profiles:
-      - hashicorp-container
     image: curlimages/curl
     depends_on:
       - vault
@@ -42,13 +29,12 @@ services:
       retries: 30
 
   lockbox:
-    profiles:
-      - mercury
     build:
       context: lockbox
       dockerfile: ./Dockerfile
     depends_on:
       - db_lockbox
+      - vault-init
     environment:
       - LOCKBOX_DATABASE_URL=postgres://postgres:postgres@db_lockbox:5432/enclave
       - LOCKBOX_PORT=18080
@@ -62,8 +48,6 @@ services:
       - "18080:18080"
 
   mercury-server:
-    profiles:
-      - mercury
     build:
       context: .
       dockerfile: server/Dockerfile
@@ -97,8 +81,6 @@ services:
       - "8000:8000"
 
   db_lockbox:
-    profiles:
-      - mercury
     image: postgres:16.2
     environment:
       POSTGRES_PASSWORD: postgres
@@ -109,8 +91,6 @@ services:
       - postgres_lockbox_data:/var/lib/postgresql/data
 
   db_server:
-    profiles:
-      - mercury
     image: postgres:16.2
     environment:
       POSTGRES_PASSWORD: postgres
@@ -119,8 +99,42 @@ services:
       - "5432:5432"
     volumes:
       - postgres_server_data:/var/lib/postgresql/data
-
-
+  web:
+    build:
+      context: .
+      dockerfile: ./web/Dockerfile
+    ports:
+      - "3000:80"
+    environment:
+      - REACT_APP_MERCURY_SERVER=http://mercury-server:8000
+      - REACT_APP_BITCOIN_NETWORK=regtest
+      - REACT_APP_LOCKHEIGHT_INIT=1000
+      - REACT_APP_LH_DECREMENT=10
+      - REACT_APP_BATCH_TIMEOUT=20
+      - REACT_APP_ENCLAVES='[{"url": "http://lockbox:18080", "allow_deposit": true}]'
+      - REACT_APP_DB_USER=postgres
+      - REACT_APP_DB_PASSWORD=postgres
+      - REACT_APP_DB_HOST=db_server
+      - REACT_APP_DB_PORT=5432
+      - REACT_APP_DB_NAME=mercury
+      - REACT_APP_LOCKBOX_DB_USER=postgres
+      - REACT_APP_LOCKBOX_DB_PASSWORD=postgres
+      - REACT_APP_LOCKBOX_DB_HOST=db_lockbox
+      - REACT_APP_LOCKBOX_DB_PORT=5432
+      - REACT_APP_LOCKBOX_DB_NAME=enclave
+      - REACT_APP_LOCKBOX_DATABASE_URL=postgres://postgres:postgres@db_lockbox:5432/enclave
+      - REACT_APP_LOCKBOX_PORT=18080
+      - REACT_APP_KEY_MANAGER=hashicorp_container
+      - REACT_APP_HASHICORP_CONTAINER_TOKEN=2bbz80mr1zm0tfrjwxyq7f48ofgky848
+      - REACT_APP_HASHICORP_CONTAINER_URL=http://vault:8200
+      - REACT_APP_HASHICORP_CONTAINER_PATH=mercury-seed
+      - REACT_APP_HASHICORP_CONTAINER_MOUNT_POINT=secret
+      - REACT_APP_HASHICORP_CONTAINER_KEY_NAME=seed
+      - REACT_APP_VAULT_DEV_ROOT_TOKEN_ID=2bbz80mr1zm0tfrjwxyq7f48ofgky848
+      - REACT_APP_VAULT_PORT=8200
+    depends_on:
+      - mercury-server
+      
 volumes:
   postgres_lockbox_data:
   postgres_server_data:

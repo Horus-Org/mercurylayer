@@ -27,7 +27,9 @@ async fn try_to_send_unconfirmed_coin(client_config: &ClientConfig, to_address: 
 
 async fn sucessfully_transfer(client_config: &ClientConfig, wallet1: &Wallet, wallet2: &Wallet) -> Result<()> {
 
-    let token_id = mercuryrustlib::deposit::get_token(client_config).await?;
+    let token_response = mercuryrustlib::deposit::get_token(client_config).await?;
+
+    let token_id = crate::utils::handle_token_response(client_config, &token_response).await?;
 
     let amount = 1000;
 

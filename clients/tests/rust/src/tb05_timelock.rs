@@ -12,7 +12,9 @@ pub async fn old_state_broadcasted(client_config: &ClientConfig, wallet1: &Walle
 
     // Create first deposit address
 
-    let token_id = mercuryrustlib::deposit::get_token(client_config).await?;
+    let token_response = mercuryrustlib::deposit::get_token(client_config).await?;
+
+    let token_id = crate::utils::handle_token_response(client_config, &token_response).await?;
 
     let deposit_address = mercuryrustlib::deposit::get_deposit_bitcoin_address(&client_config, &wallet1.name, &token_id, amount).await?;
 
